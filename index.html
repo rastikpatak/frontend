@@ -27,7 +27,7 @@
             .then((raw_odp) => {console.log("odpoved.data")})
             
             // stiahne odpovedd z BoozeAPI
-            fetch("https://fris-backand.onrender.com")
+            fetch("https://fris-backand.onrender.com/students")
             .then((odpoved_raw) => {
                 odpoved_raw.json().then((odpoved) => {
                     // dekoduje odpoved (a vypise do konzole)
