@@ -1,60 +1,60 @@
-<html>  
-    <head> 
-        <title> title </title>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Students</title>
+</head>
+<body>
 
-    </head>
-    <body>
-        <h1>nieco</h1>
-        <p>text</p>
-        <div id="mojd"></div>
+<h1>Študenti</h1>
+<div id="mojd"></div>
 
-        <script type="text/javascript">
-            console.log("ide to")
-            const mojd =
-                document.getElementById("mojd")
-                mojd.style.display = "grid"
-                mojd.style.gridTemplateColumns = "repeat(4, 1fr)" // 4 obrázky v riadku
-                mojd.style.gap = "20px"
-                mojd.style.justifyItems = "center"
-            //mojd.textContent = "jsc"
-            setTimeout(function() {
-                mojd.style.backgroundColor = "red";
-            }, 200)
-            setInterval(() => {
-                mojd.style.backgroundColor = "yellow"
-            }, 200)
-            raw_odp =fetch("https://fris-backand.onrender.com/students")
-            .then((raw_odp) => {console.log("odpoved.data")})
-            
-            // stiahne odpovedd z BoozeAPI
-            fetch("https://fris-backand.onrender.com/students")
-            .then((odpoved_raw) => {
-                odpoved_raw.json().then((odpoved) => {
-                    // dekoduje odpoved (a vypise do konzole)
-                    console.log(odpoved.data)
+<script>
+const mojd = document.getElementById("mojd")
 
-                    // pre kazdy drink vyrobi <img> element a pripoji do mojD
-                    odpoved.data.forEach((student) => {
-                        const drinkImg = document.createElement("img")
+// štýly
+mojd.style.display = "grid"
+mojd.style.gridTemplateColumns = "repeat(4, 1fr)"
+mojd.style.gap = "20px"
+mojd.style.justifyItems = "center"
 
-                        drinkImg.src = student.img
-                        drinkImg.width = 200
-                        drinkImg.height = 220
-                        //drinkImg.style.display = "grid"
-                        //drinkImg.style.margin = "15px"
-                        drinkImg.style.objectFit = "cover"
-                        drinkImg.style.borderRadius = "10px"
+// efekty (len test)
+setTimeout(() => {
+    mojd.style.backgroundColor = "red"
+}, 200)
 
-                        //drinkImg -fit=cover;
+setInterval(() => {
+    mojd.style.backgroundColor = "yellow"
+}, 200)
 
-                        // pripoji ("append") ako dieta do mojDivVJs
-                        mojd.appendChild(drinkImg)
-                })
-            })
-        })
+// FETCH na backend
+fetch("https://fris-backand.onrender.com/students")
+  .then(res => res.json())
+  .then(data => {
+    console.log(data)
 
+    data.forEach((student) => {
+        const card = document.createElement("div")
+        card.style.textAlign = "center"
 
-        </script> 
+        const img = document.createElement("img")
+        img.src = student.img || "https://via.placeholder.com/200"
+        img.width = 200
+        img.height = 220
+        img.style.objectFit = "cover"
+        img.style.borderRadius = "10px"
 
-    </body>
+        const name = document.createElement("p")
+        name.textContent = student.name + " " + student.surname
+
+        card.appendChild(img)
+        card.appendChild(name)
+
+        mojd.appendChild(card)
+    })
+  })
+  .catch(err => console.error("Chyba:", err))
+</script>
+
+</body>
 </html>
