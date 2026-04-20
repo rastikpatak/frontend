@@ -4,9 +4,9 @@ app = Flask(__name__)
 
 database = {
     'students': [
-        {"id": 1, "name": "samuel", "surname": "martis", "img": "http://www.gcm.sk/images/logo.jpg"},
-        {"id": 2, "name": "andrej", "surname": "bucko", "img": "http://www.gcm.sk/images/logo.jpg"},
-        {"id": 3, "name": "rasto", "surname": "patak", "img": ""},
+        {"id": 1, "name": "samuel", "surname": "martis","personality": "in love","img": "http://www.gcm.sk/images/logo.jpg"},
+        {"id": 2, "name": "andrej", "surname": "bucko","personality": "rasist","img": "http://www.gcm.sk/images/logo.jpg"},
+        {"id": 3, "name": "rasto", "surname": "patak","personality": "shy","img": ""}
         {"id": 4, "name": "martin", "surname": "cepcek", "img": " "},
         {"id": 5, "name": "peter", "surname": "marcin", "img": " "},
         {"id": 6, "name": "janko", "surname": "kral", "img": " "},
