@@ -28,5 +28,68 @@ def find_student(id):
 def pusti_stranku():
     return render_template("index.html")
 
+@app.route("/chat", methods=["POST"])
+def chat():
+    data = request.json
+
+    message = data.get("message")
+    name = data.get("name")
+    personality = data.get("personality")
+
+    # 🔑 key pre pamäť
+    key = name
+
+    # 🧠 vytvor pamäť ak neexistuje
+    if key not in memory:
+        memory[key] = []
+
+    try:
+        # 🧠 system message
+        messages = [
+            {
+                "role": "system",
+                "content": f"""
+You are a student named {name}.
+Personality: {personality}.
+
+Rules:
+- Speak ONLY English
+- Act like a real student
+- Be short and natural
+- Never say you are AI
+"""
+            }
+        ]
+
+        # 🧠 pridaj históriu
+        messages += memory[key]
+
+        # 👤 aktuálna správa
+        messages.append({
+            "role": "user",
+            "content": message
+        })
+
+        # 🤖 AI call
+        completion = client.chat.completions.create(
+            model="llama-3.1-8b-instant",
+            messages=messages
+        )
+
+        reply = completion.choices[0].message.content
+
+        # 💾 uloženie do pamäte
+        memory[key].append({"role": "user", "content": message})
+        memory[key].append({"role": "assistant", "content": reply})
+
+        return jsonify({"reply": reply})
+
+    except Exception as e:
+        return jsonify({"error": str(e)})
+
+
+if __name__ == "__main__":
+    app.run()
+
 if __name__ == '__main__':
     app.run(debug=True)
