@@ -1,3 +1,5 @@
 flask
 gunicorn
 groq
+psycopg2
+os
