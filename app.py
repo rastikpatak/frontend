@@ -1,26 +1,123 @@
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, request
 from groq import Groq
+import psycopg2
+import os
 
 app = Flask(__name__)
 
-# 🔑 Groq client
-client = Groq(api_key="YOUR_API_KEY_HERE")
+# 🔑 API key (lepšie cez ENV)
+client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
-# 🧠 memory storage
+# 🧠 memory (zatiaľ v RAM)
 memory = {}
 
-database = {
-    'students': [
-        {"id": 1, "name": "samuel", "surname": "martis","personality": "in love","img": "http://www.gcm.sk/images/logo.jpg"},
-        {"id": 2, "name": "andrej", "surname": "bucko","personality": "rasist","img": "http://www.gcm.sk/images/logo.jpg"},
-        {"id": 3, "name": "rasto", "surname": "patak","personality": "shy","img": ""},
-        {"id": 4, "name": "martin", "surname": "cepcek", "img": " "},
-    ]
-}
+# 🗄️ PostgreSQL pripojenie
+def get_db_connection():
+    return psycopg2.connect(
+        host="localhost",
+        database="your_db_name",
+        user="your_user",
+        password="your_password"
+    )
 
-@app.route('/students')
+# =========================
+# 📚 STUDENTS API
+# =========================
+
+# GET - všetci študenti
+@app.route('/students', methods=["GET"])
 def list_students():
-    return jsonify(database["students"])
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    cur.execute("SELECT id, name, surname, personality, img FROM students")
+    rows = cur.fetchall()
+
+    students = []
+    for row in rows:
+        students.append({
+            "id": row[0],
+            "name": row[1],
+            "surname": row[2],
+            "personality": row[3],
+            "img": row[4]
+        })
+
+    cur.close()
+    conn.close()
+
+    return jsonify(students)
+
+# POST - pridaj študenta
+@app.route('/students', methods=["POST"])
+def add_student():
+    data = request.json
+
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        INSERT INTO students (name, surname, personality, img)
+        VALUES (%s, %s, %s, %s)
+        RETURNING id
+    """, (
+        data.get("name"),
+        data.get("surname"),
+        data.get("personality"),
+        data.get("img")
+    ))
+
+    new_id = cur.fetchone()[0]
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    return jsonify({"message": "Student added", "id": new_id})
+
+# PUT - uprav študenta
+@app.route('/students/<int:id>', methods=["PUT"])
+def update_student(id):
+    data = request.json
+
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        UPDATE students
+        SET name=%s, surname=%s, personality=%s, img=%s
+        WHERE id=%s
+    """, (
+        data.get("name"),
+        data.get("surname"),
+        data.get("personality"),
+        data.get("img"),
+        id
+    ))
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    return jsonify({"message": "Student updated"})
+
+# DELETE - zmaž študenta
+@app.route('/students/<int:id>', methods=["DELETE"])
+def delete_student(id):
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    cur.execute("DELETE FROM students WHERE id=%s", (id,))
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    return jsonify({"message": "Student deleted"})
+
+# =========================
+# 💬 CHAT
+# =========================
 
 @app.route('/chat', methods=["POST"])
 def chat():
@@ -73,6 +170,10 @@ Rules:
 
     except Exception as e:
         return jsonify({"error": str(e)})
+
+# =========================
+# 🚀 RUN
+# =========================
 
 if __name__ == "__main__":
     app.run(debug=True)
