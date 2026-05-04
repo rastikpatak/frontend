@@ -7,10 +7,11 @@ CORS(app)
 
 def get_db_connection():
     return psycopg2.connect(
-        host="localhost",
-        database="your_db",
-        user="your_user",
-        password="your_password"
+        host="dpg-d7ng5n2qqhas73frva90-a.frankfurt-postgres.render.com",
+        database="postgres_3eru",
+        user="postgres_3eru_user",
+        password="mOnYuHR6gLCRFzYhin9DSFpaTmd0lu9l",
+        port= 5432,
     )
 
 # ======================
