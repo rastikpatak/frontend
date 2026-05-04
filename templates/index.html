@@ -7,53 +7,133 @@
 <body>
 
 <h1>Študenti</h1>
+
+<!-- FORM -->
+<h3>Pridať / Upraviť študenta</h3>
+<input id="name" placeholder="Name">
+<input id="surname" placeholder="Surname">
+<input id="personality" placeholder="Personality">
+<input id="img" placeholder="Image URL">
+<button onclick="addStudent()">Pridať</button>
+<button onclick="updateStudent()">Upraviť</button>
+
+<br><br>
+
 <div id="mojd"></div>
 
 <script>
+const API = "http://127.0.0.1:5000" // alebo tvoj render URL
 const mojd = document.getElementById("mojd")
+
+let selectedId = null
 
 // štýly
 mojd.style.display = "grid"
 mojd.style.gridTemplateColumns = "repeat(4, 1fr)"
 mojd.style.gap = "20px"
-mojd.style.justifyItems = "center"
 
-// efekty (len test)
-setTimeout(() => {
-    mojd.style.backgroundColor = "red"
-}, 200)
+// LOAD
+function loadStudents() {
+    mojd.innerHTML = ""
 
-setInterval(() => {
-    mojd.style.backgroundColor = "yellow"
-}, 200)
+    fetch(API + "/students")
+        .then(res => res.json())
+        .then(data => {
+            data.forEach(student => {
+                const card = document.createElement("div")
+                card.style.border = "1px solid black"
+                card.style.padding = "10px"
+                card.style.textAlign = "center"
 
-// FETCH na backend
-fetch("https://fris-backand.onrender.com/students")
-  .then(res => res.json())
-  .then(data => {
-    console.log(data)
+                const img = document.createElement("img")
+                img.src = student.img || "https://via.placeholder.com/200"
+                img.width = 200
+                img.height = 220
 
-    data.forEach((student) => {
-        const card = document.createElement("div")
-        card.style.textAlign = "center"
+                const name = document.createElement("p")
+                name.textContent = student.name + " " + student.surname
 
-        const img = document.createElement("img")
-        img.src = student.img || "https://via.placeholder.com/200"
-        img.width = 200
-        img.height = 220
-        img.style.objectFit = "cover"
-        img.style.borderRadius = "10px"
+                const personality = document.createElement("p")
+                personality.textContent = student.personality
 
-        const name = document.createElement("p")
-        name.textContent = student.name + " " + student.surname
+                // SELECT (edit)
+                const editBtn = document.createElement("button")
+                editBtn.textContent = "Edit"
+                editBtn.onclick = () => {
+                    selectedId = student.id
 
-        card.appendChild(img)
-        card.appendChild(name)
+                    document.getElementById("name").value = student.name
+                    document.getElementById("surname").value = student.surname
+                    document.getElementById("personality").value = student.personality
+                    document.getElementById("img").value = student.img
+                }
 
-        mojd.appendChild(card)
+                // DELETE
+                const deleteBtn = document.createElement("button")
+                deleteBtn.textContent = "Delete"
+                deleteBtn.onclick = () => deleteStudent(student.id)
+
+                card.appendChild(img)
+                card.appendChild(name)
+                card.appendChild(personality)
+                card.appendChild(editBtn)
+                card.appendChild(deleteBtn)
+
+                mojd.appendChild(card)
+            })
+        })
+}
+
+// ADD
+function addStudent() {
+    fetch(API + "/students", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            name: document.getElementById("name").value,
+            surname: document.getElementById("surname").value,
+            personality: document.getElementById("personality").value,
+            img: document.getElementById("img").value
+        })
     })
-  })
-  .catch(err => console.error("Chyba:", err))
+    .then(() => {
+        loadStudents()
+    })
+}
+
+// UPDATE
+function updateStudent() {
+    if (!selectedId) {
+        alert("Najprv vyber študenta")
+        return
+    }
+
+    fetch(API + "/students/" + selectedId, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            name: document.getElementById("name").value,
+            surname: document.getElementById("surname").value,
+            personality: document.getElementById("personality").value,
+            img: document.getElementById("img").value
+        })
+    })
+    .then(() => {
+        selectedId = null
+        loadStudents()
+    })
+}
+
+// DELETE
+function deleteStudent(id) {
+    fetch(API + "/students/" + id, {
+        method: "DELETE"
+    })
+    .then(() => loadStudents())
+}
+
+// INIT
+loadStudents()
 </script>
 
 </body>
