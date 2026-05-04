@@ -16,6 +16,10 @@ def get_db_connection():
 # ======================
 # STUDENTS API
 # ======================
+@app.route('/str')
+def index_page():
+    return render_template("index.html")  # musí byť v /templates
+
 
 @app.route('/students', methods=["GET"])
 def get_students():
