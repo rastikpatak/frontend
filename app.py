@@ -94,4 +94,4 @@ if __name__ == "__main__":
     app.run(
         host="0.0.0.0",
         port=int(os.environ.get("PORT", 5000))
-    )ur=conn.cursor() cur.execute( "DELETE FROM students WHERE id=%s", (id,) ) conn.commit() cur.close() conn.close() return jsonify({"deleted":True}) if __name__=="__main__": app.run( host="0.0.0.0", port=int(os.environ.get("PORT",5000)) )
+    )
