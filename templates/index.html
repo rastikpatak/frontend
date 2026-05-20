@@ -143,7 +143,7 @@ function loadStudents() {
 
 // ADD
 function addStudent() {
-    fetch(API + "/students", {
+    fetch("/students", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({
@@ -158,7 +158,7 @@ function addStudent() {
 
 // DELETE
 function deleteStudent(id) {
-    fetch(API + "/students/" + id, {
+    fetch("/students/" + id, {
         method: "DELETE"
     })
     .then(() => loadStudents())
