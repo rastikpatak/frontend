@@ -6,7 +6,6 @@ import psycopg2
 app = Flask(__name__)
 CORS(app)
 
-
 def get_db_connection():
     return psycopg2.connect(
         host=os.environ.get("DB_HOST"),
@@ -16,23 +15,37 @@ def get_db_connection():
         port=os.environ.get("DB_PORT")
     )
 
-
 @app.route("/")
 def home():
     return render_template("index.html")
 
-
 @app.route("/students", methods=["GET"])
 def get_students():
+    sort = request.args.get("sort", "id")
+    order = request.args.get("order", "asc")
+
+    sort_map = {
+        "id": "id",
+        "name": "name",
+        "surname": "surname"
+    }
+
+    if sort not in sort_map:
+        sort = "id"
+
+    if order not in ["asc", "desc"]:
+        order = "asc"
+
     conn = get_db_connection()
     cur = conn.cursor()
 
-    cur.execute("""
+    query = f"""
         SELECT id, name, surname, img
         FROM students
-        ORDER BY id
-    """)
+        ORDER BY {sort_map[sort]} {order.upper()}
+    """
 
+    cur.execute(query)
     rows = cur.fetchall()
 
     students = []
@@ -48,7 +61,6 @@ def get_students():
     conn.close()
 
     return jsonify(students)
-
 
 @app.route("/students", methods=["POST"])
 def add_student():
@@ -72,23 +84,18 @@ def add_student():
 
     return jsonify({"ok": True})
 
-
 @app.route("/students/<int:id>", methods=["DELETE"])
 def delete_student(id):
     conn = get_db_connection()
     cur = conn.cursor()
 
-    cur.execute(
-        "DELETE FROM students WHERE id=%s",
-        (id,)
-    )
+    cur.execute("DELETE FROM students WHERE id=%s", (id,))
 
     conn.commit()
     cur.close()
     conn.close()
 
     return jsonify({"deleted": True})
-
 
 if __name__ == "__main__":
     app.run(
