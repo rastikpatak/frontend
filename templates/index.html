@@ -24,7 +24,15 @@ h1 {
     flex-wrap: wrap;
 }
 
-input {
+.controls {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+input, select {
     padding: 8px;
     border-radius: 6px;
     border: 1px solid #ccc;
@@ -94,6 +102,19 @@ button:hover {
     <button onclick="addStudent()">Add</button>
 </div>
 
+<div class="controls">
+    <select id="sortBy" onchange="loadStudents()">
+        <option value="id">Sort by ID</option>
+        <option value="name">Sort by Name</option>
+        <option value="surname">Sort by Surname</option>
+    </select>
+
+    <select id="orderBy" onchange="loadStudents()">
+        <option value="asc">Ascending</option>
+        <option value="desc">Descending</option>
+    </select>
+</div>
+
 <div id="mojd"></div>
 
 <script>
@@ -101,9 +122,12 @@ const API = "";
 const mojd = document.getElementById("mojd");
 
 function loadStudents() {
+    const sort = document.getElementById("sortBy").value;
+    const order = document.getElementById("orderBy").value;
+
     mojd.innerHTML = "";
 
-    fetch(API + "/students")
+    fetch(`${API}/students?sort=${sort}&order=${order}`)
         .then(res => res.json())
         .then(data => {
             data.forEach(s => {
