@@ -62,14 +62,13 @@ def add_student():
 
     cur.execute("""
         INSERT INTO students
-        (name,surname,personality,img)
+        (name,surname,img)
 
-        VALUES(%s,%s,%s,%s)
+        VALUES(%s,%s,%s)
     """,(
 
         data["name"],
         data["surname"],
-        data["personality"],
         data["img"]
 
     ))
