@@ -69,7 +69,7 @@ def add_student():
 
         data["name"],
         data["surname"],
-        data["img"]
+        data["img",""]
 
     ))
 
