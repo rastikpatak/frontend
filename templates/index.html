@@ -16,7 +16,6 @@ h1 {
     text-align: center;
 }
 
-/* FORM */
 .form {
     display: flex;
     gap: 10px;
@@ -44,14 +43,12 @@ button:hover {
     background: #0056b3;
 }
 
-/* GRID */
 #mojd {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     gap: 20px;
 }
 
-/* CARD */
 .card {
     background: white;
     border-radius: 12px;
@@ -80,11 +77,6 @@ button:hover {
     margin-bottom: 5px;
 }
 
-.personality {
-    color: gray;
-    font-size: 14px;
-}
-
 .actions {
     margin-top: 10px;
 }
@@ -98,7 +90,6 @@ button:hover {
 <div class="form">
     <input id="name" placeholder="Name">
     <input id="surname" placeholder="Surname">
-    <input id="personality" placeholder="Personality">
     <input id="img" placeholder="Image URL">
     <button onclick="addStudent()">Add</button>
 </div>
@@ -106,66 +97,58 @@ button:hover {
 <div id="mojd"></div>
 
 <script>
-const API = ""
-fetch(API+"/students")
-const mojd = document.getElementById("mojd")
+const API = "";
+const mojd = document.getElementById("mojd");
 
-// LOAD STUDENTS
 function loadStudents() {
-    mojd.innerHTML = ""
+    mojd.innerHTML = "";
 
     fetch(API + "/students")
-    .then(res => res.json())
-    .then(data => {
+        .then(res => res.json())
+        .then(data => {
+            data.forEach(s => {
+                const card = document.createElement("div");
+                card.className = "card";
 
-        data.forEach(s => {
-
-            const card = document.createElement("div")
-            card.className = "card"
-
-            card.innerHTML = `
-                <img src="${s.img || 'https://via.placeholder.com/300'}">
-
-                <div class="card-body">
-                    <div class="name">${s.name} ${s.surname}</div>
-                    <div class="personality">${s.personality || ""}</div>
-
-                    <div class="actions">
-                        <button onclick="deleteStudent(${s.id})">Delete</button>
+                card.innerHTML = `
+                    <img src="${s.img || 'https://via.placeholder.com/300'}" alt="student">
+                    <div class="card-body">
+                        <div class="name">${s.name} ${s.surname}</div>
+                        <div class="actions">
+                            <button onclick="deleteStudent(${s.id})">Delete</button>
+                        </div>
                     </div>
-                </div>
-            `
+                `;
 
-            mojd.appendChild(card)
+                mojd.appendChild(card);
+            });
         })
-    })
+        .catch(err => console.error("Load error:", err));
 }
 
-// ADD
 function addStudent() {
-    fetch("/students", {
+    fetch(API + "/students", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({
             name: document.getElementById("name").value,
             surname: document.getElementById("surname").value,
-            personality: document.getElementById("personality").value,
             img: document.getElementById("img").value
         })
     })
     .then(() => loadStudents())
+    .catch(err => console.error("Add error:", err));
 }
 
-// DELETE
 function deleteStudent(id) {
-    fetch("/students/" + id, {
+    fetch(API + "/students/" + id, {
         method: "DELETE"
     })
     .then(() => loadStudents())
+    .catch(err => console.error("Delete error:", err));
 }
 
-// INIT
-loadStudents()
+loadStudents();
 </script>
 
 </body>
