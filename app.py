@@ -29,7 +29,7 @@ def get_students():
     cur = conn.cursor()
 
     cur.execute("""
-        SELECT id,name,surname,personality,img
+        SELECT id,name,surname,img
         FROM students
         ORDER BY id
     """)
@@ -43,8 +43,7 @@ def get_students():
             "id":r[0],
             "name":r[1],
             "surname":r[2],
-            "personality":r[3],
-            "img":r[4]
+            "img":r[3]
         })
 
     cur.close()
