@@ -1,4 +1,4 @@
-import os
+import os from flask import Flask, jsonify, request, render_template from flask_cors import CORS import psycopg2 app = Flask(__name__) CORS(app) def get_db_connection(): return psycopg2.connect( host=os.environ.get("DB_HOST"), database=os.environ.get("DB_NAME"), user=os.environ.get("DB_USER"), password=os.environ.get("DB_PASSWORD"), port=os.environ.get("DB_PORT") ) @app.route("/") def home(): return render_template("index.html") @app.route("/students", methods=["GET"]) def get_students(): conn = get_db_connection() cur = conn.cursor() cur.execute(""" SELECT id,name,surname,img FROM students ORDER BY id """) rows = cur.fetchall() students = [] for r in rows: students.append({ "id":r[0], "name":r[1], "surname":r[2], "img":r[3] }) cur.close() conn.close() return jsonify(stuimport os
 from flask import Flask, jsonify, request, render_template
 from flask_cors import CORS
 import psycopg2
@@ -35,10 +35,14 @@ def get_students():
 
     rows = cur.fetchall()
 
-    students = [
-        {"id": r[0], "name": r[1], "surname": r[2], "img": r[3]}
-        for r in rows
-    ]
+    students = []
+    for r in rows:
+        students.append({
+            "id": r[0],
+            "name": r[1],
+            "surname": r[2],
+            "img": r[3]
+        })
 
     cur.close()
     conn.close()
@@ -74,7 +78,10 @@ def delete_student(id):
     conn = get_db_connection()
     cur = conn.cursor()
 
-    cur.execute("DELETE FROM students WHERE id=%s", (id,))
+    cur.execute(
+        "DELETE FROM students WHERE id=%s",
+        (id,)
+    )
 
     conn.commit()
     cur.close()
@@ -87,4 +94,4 @@ if __name__ == "__main__":
     app.run(
         host="0.0.0.0",
         port=int(os.environ.get("PORT", 5000))
-    )
+    )ur=conn.cursor() cur.execute( "DELETE FROM students WHERE id=%s", (id,) ) conn.commit() cur.close() conn.close() return jsonify({"deleted":True}) if __name__=="__main__": app.run( host="0.0.0.0", port=int(os.environ.get("PORT",5000)) )
