@@ -54,31 +54,25 @@ def get_students():
 
 @app.route("/students", methods=["POST"])
 def add_student():
+    data = request.json
 
-    data=request.json
-
-    conn=get_db_connection()
-    cur=conn.cursor()
+    conn = get_db_connection()
+    cur = conn.cursor()
 
     cur.execute("""
-        INSERT INTO students
-        (name,surname,img)
-
-        VALUES(%s,%s,%s)
-    """,(
-
-        data["name"],
-        data["surname"],
-        data["img",""]
-
+        INSERT INTO students (name, surname, img)
+        VALUES (%s, %s, %s)
+    """, (
+        data.get("name"),
+        data.get("surname"),
+        data.get("img", "")
     ))
 
     conn.commit()
-
     cur.close()
     conn.close()
 
-    return jsonify({"ok":True})
+    return jsonify({"ok": True})
 
 
 @app.route("/students/<int:id>",methods=["DELETE"])
