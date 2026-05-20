@@ -24,27 +24,21 @@ def home():
 
 @app.route("/students", methods=["GET"])
 def get_students():
-
     conn = get_db_connection()
     cur = conn.cursor()
 
     cur.execute("""
-        SELECT id,name,surname,img
+        SELECT id, name, surname, img
         FROM students
         ORDER BY id
     """)
 
     rows = cur.fetchall()
 
-    students = []
-
-    for r in rows:
-        students.append({
-            "id":r[0],
-            "name":r[1],
-            "surname":r[2],
-            "img":r[3]
-        })
+    students = [
+        {"id": r[0], "name": r[1], "surname": r[2], "img": r[3]}
+        for r in rows
+    ]
 
     cur.close()
     conn.close()
@@ -75,27 +69,22 @@ def add_student():
     return jsonify({"ok": True})
 
 
-@app.route("/students/<int:id>",methods=["DELETE"])
+@app.route("/students/<int:id>", methods=["DELETE"])
 def delete_student(id):
+    conn = get_db_connection()
+    cur = conn.cursor()
 
-    conn=get_db_connection()
-    cur=conn.cursor()
-
-    cur.execute(
-        "DELETE FROM students WHERE id=%s",
-        (id,)
-    )
+    cur.execute("DELETE FROM students WHERE id=%s", (id,))
 
     conn.commit()
-
     cur.close()
     conn.close()
 
-    return jsonify({"deleted":True})
+    return jsonify({"deleted": True})
 
 
-if __name__=="__main__":
+if __name__ == "__main__":
     app.run(
         host="0.0.0.0",
-        port=int(os.environ.get("PORT",5000))
+        port=int(os.environ.get("PORT", 5000))
     )
