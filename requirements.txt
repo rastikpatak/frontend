@@ -1,4 +1,4 @@
-os
-flask
-flask_cors
-psycopg2
+Flask
+flask-cors
+gunicorn
+psycopg2-binary
